@@ -13,25 +13,14 @@ import fonts from '../styles/fonts';
 import { EnviromentButton } from '../components/EnviromentButton';
 import { PlantCardPrimary } from '../components/PlantCardPrimary';
 import { Load } from '../components/Load';
+import { useNavigation } from '@react-navigation/core';
+import { PlantProps } from '../libs/storage';
 interface EnviromentProps {
     key: string;
     title: string;
 }
 
-interface PlantProps {
-    id: string;
-    name: string;
-    about: string;
-    water_tips: string;
-    photo: string
-    environments: [string];
-    frequency: {
-        times: number;
-        repeat_every: string
-    }
 
-
-}
 export function PlantSelect() {
 
     const [enviroments, setEnviroments] = useState<EnviromentProps[]>([])
@@ -41,7 +30,8 @@ export function PlantSelect() {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [loadingMore, setLoadingMore] = useState(false);
-    const [loadedAll, setLoadedAll] = useState(false);
+
+    const navigation = useNavigation();
 
     async function fetchPlants() {
         const { data } = await api
@@ -79,6 +69,12 @@ export function PlantSelect() {
         setPage(oldValue => oldValue + 1);
         fetchPlants();
     }
+
+    function handlePlantSelect(plant: PlantProps) {
+        navigation.navigate('PlantSave', { plant });
+    }
+
+
     useEffect(() => {
         async function fetchEnviroment() {
             const { data } = await api
@@ -116,6 +112,7 @@ export function PlantSelect() {
             <View>
                 <FlatList
                     data={enviroments}
+                    keyExtractor={(item) => String(item.key)}
                     renderItem={({ item }) => (
                         <EnviromentButton
                             title={item.title}
@@ -132,9 +129,11 @@ export function PlantSelect() {
             <View style={Styles.plants}>
                 <FlatList
                     data={filteredplants}
+                    keyExtractor={(item) => String(item.id)}
                     renderItem={({ item }) => (
                         <PlantCardPrimary
                             data={item}
+                            onPress={() => handlePlantSelect(item)}
                         />
                     )
 
